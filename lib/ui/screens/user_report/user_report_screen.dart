@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hook_atos/animation/faidAnimation.dart';
+import 'package:hook_atos/model/visitCount.dart';
+import 'package:hook_atos/ui/screens/user_report/cubit/calc.dart';
+import 'package:intl/intl.dart';
 import '../../../model/location_model.dart';
 import '../../../shared/helper/mangers/colors.dart';
 import '../../../shared/helper/mangers/constants.dart';
@@ -20,12 +23,15 @@ class UserReportScreen extends StatefulWidget {
 
   UserReportScreen(this.uid);
 
+
   @override
   State<UserReportScreen> createState() => _UserReportScreenState();
 }
 
 class _UserReportScreenState extends State<UserReportScreen> {
   DateTime? startDate;
+  VisitCounts? counts;
+
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +41,7 @@ class _UserReportScreenState extends State<UserReportScreen> {
         listener: (context, state) {},
         builder: (context, state) {
           UserReportCubit cubit = UserReportCubit.get(context);
+
           return Scaffold(
             body: SafeArea(
               child: Column(
@@ -49,13 +56,27 @@ class _UserReportScreenState extends State<UserReportScreen> {
                       press: () {
                         showDatePicker(
                           context: context,
+
                           initialDate: DateTime.now(),
                           firstDate: DateTime(2020, 12, 31),
-                          lastDate: DateTime.now(),
-                        ).then((value) {
+                     lastDate: DateTime(2025, 12, 31)
+                        ).then((value) async {
+                          if(value==null)
+                          {
+                            setState(() {
+                              value= DateFormat('dd/MM/yyyy')
+                                  .format(DateTime.now()) as DateTime?;
+                            });
+                          }
+
                           cubit.getUserLocation(userId: widget.uid, startDate: value!);
+
                           setState(() {
                             startDate = value;
+                          });
+                          VisitCounts fetchedCounts = await calculateVisitCountsForUser(widget.uid, startDate!,value!);
+                          setState(() {
+                            counts = fetchedCounts;
                           });
                         });
                       },
@@ -71,15 +92,38 @@ class _UserReportScreenState extends State<UserReportScreen> {
                         showDatePicker(
                           context: context,
                           initialDate: DateTime.now(),
-                          firstDate: DateTime(2020, 12, 31),
-                          lastDate: DateTime.now(),
-                        ).then((value) {
-                          if(startDate !=null){
+                          firstDate: DateTime(2020,12, 31),
+                            lastDate: DateTime(2025,12, 31)
+                        ).then((value) async {
+                          if(value==null)
+                          {
+                            setState(() {
+                              value= DateFormat('dd/MM/yyyy')
+                                  .format(DateTime.now()) as DateTime;
+                            });
+                          }
+
+                          if(startDate !=null&&value !=null){
                             cubit.getUserLocation(
                                 userId: widget.uid,
                                 startDate: startDate!,
-                                endDate: value!);
+                                endDate: value);
+
+
+
+                              VisitCounts fetchedCounts =await  calculateVisitCountsForUser(widget.uid, startDate!,value! );
+
+                              setState(() {
+                                counts = fetchedCounts;
+                              });
+                            }
+                          else if(value==startDate){
+
+
                           }
+
+
+
 
                         });
                       },
@@ -87,6 +131,9 @@ class _UserReportScreenState extends State<UserReportScreen> {
                     ),
                   ),
                   SizedBox(height: getProportionateScreenHeight(30)),
+                  Center(child: Text('الزيارات المكتملة ',style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600)),),
                   cubit.ReportList.length == 0
                       ? buildTotal(cubit.totalList, cubit)
                       : Expanded(
@@ -100,217 +147,76 @@ class _UserReportScreenState extends State<UserReportScreen> {
                                       itemBuilder: (context, index) {
                                         return InkWell(
                                           onTap: () {
-                                            // AwesomeDialog(context: context,
-                                            // width: 350,
-                                            // title: "ddddddddddddd",
-                                            // animType: AnimType.TOPSLIDE,
-                                            //
-                                            // body:
-                                            // Container(
-                                            //   width: 350,
-                                            //
-                                            //   child: Card(
-                                            //     elevation: 5,
-                                            //     child: Padding(
-                                            //       padding: const EdgeInsets.symmetric(
-                                            //           horizontal: 24.0, vertical: 24),
-                                            //       child: FadeAnimation(
-                                            //         0.5,
-                                            //         Column(
-                                            //           crossAxisAlignment: CrossAxisAlignment.start,
-                                            //           mainAxisAlignment: MainAxisAlignment.start,
-                                            //           children: [
-                                            //             Text(
-                                            //               "Name : " ,
-                                            //               style: TextStyle(
-                                            //                   fontSize: 24,
-                                            //                   fontWeight: FontWeight.w600),
-                                            //             ),
-                                            //             Text(
-                                            //               "Phone : " ,
-                                            //               style: TextStyle(
-                                            //                   fontSize: 24,
-                                            //                   fontWeight: FontWeight.w600),
-                                            //             ),
-                                            //             Text(
-                                            //               "Adress : "  ,
-                                            //               maxLines: 3,
-                                            //               style: TextStyle(
-                                            //                   fontSize: 16,
-                                            //                   fontWeight: FontWeight.w600),
-                                            //             ),
-                                            //             Text(
-                                            //               "Line : "  ,
-                                            //               style: TextStyle(
-                                            //                   fontSize: 24,
-                                            //                   fontWeight: FontWeight.w600),
-                                            //             ),
-                                            //             Text(
-                                            //               "Class : " ,
-                                            //               style: TextStyle(
-                                            //                   fontSize: 24,
-                                            //                   fontWeight: FontWeight.w600),
-                                            //             ),
-                                            //             Text(
-                                            //               "specilty : ",
-                                            //               style: TextStyle(
-                                            //                   fontSize: 24,
-                                            //                   fontWeight: FontWeight.w600),
-                                            //             ),
-                                            //           ],
-                                            //         ),
-                                            //       ),
-                                            //     ),
-                                            //   ),
-                                            // ),
-                                            //
-                                            //
-                                            //
-                                            // )..show();
+                                            AwesomeDialog(context: context,
+                                            width: 350,
+                                            title: "ddddddddddddd",
+                                            animType: AnimType.TOPSLIDE,
+
+                                            body:
+                                            Container(
+                                              width: 350,
+
+                                              child: Card(
+                                                elevation: 5,
+                                                child: Padding(
+                                                  padding: const EdgeInsets.symmetric(
+                                                      horizontal: 24.0, vertical: 24),
+                                                  child: FadeAnimation(
+                                                    0.5,
+                                                    Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      mainAxisAlignment: MainAxisAlignment.start,
+                                                      children: [
+                                                        Text(
+                                                          "Name : ${cubit.ReportList[index].userName}" ,
+                                                          style: TextStyle(
+                                                              fontSize: 24,
+                                                              fontWeight: FontWeight.w600),
+                                                        ),
+                                                        Text(
+                                                          "Note :${cubit.ReportList[index].note} " ,
+                                                          style: TextStyle(
+                                                              fontSize: 24,
+                                                              fontWeight: FontWeight.w600)
+                                                        ),
+                                                        Text(overflow: TextOverflow.ellipsis,
+                                                          "Adress :${cubit.ReportList[index].address} "  ,
+                                                          maxLines: 2,
+                                                          style: TextStyle(
+                                                              fontSize: 16,
+                                                              fontWeight: FontWeight.w600),
+                                                        ),
+                                                        Text(
+                                                          "Date : ${cubit.ReportList[index].date}"  ,
+                                                          style: TextStyle(
+                                                              fontSize: 24,
+                                                              fontWeight: FontWeight.w600),
+                                                        ),
+                                                        // Text(
+                                                        //   "Class : " ,
+                                                        //   style: TextStyle(
+                                                        //       fontSize: 24,
+                                                        //       fontWeight: FontWeight.w600),
+                                                        // ),
+                                                        // Text(
+                                                        //   "specilty : ",
+                                                        //   style: TextStyle(
+                                                        //       fontSize: 24,
+                                                        //       fontWeight: FontWeight.w600),
+                                                        // ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+
+
+
+                                            )..show();
                                           },
                                           child:
-                                          // Container(
-                                          //   decoration: BoxDecoration(
-                                          //       border: Border.all(
-                                          //           color: Colors.grey),
-                                          //       borderRadius:
-                                          //           BorderRadius.circular(20)),
-                                          //   child: Padding(
-                                          //     padding: EdgeInsets.all(5),
-                                          //     child: Row(
-                                          //       mainAxisAlignment:
-                                          //           MainAxisAlignment.start,
-                                          //       crossAxisAlignment:
-                                          //           CrossAxisAlignment.start,
-                                          //       children: [
-                                          //         Container(
-                                          //           height: SizeConfigManger
-                                          //                   .bodyHeight *
-                                          //               .14,
-                                          //           width: SizeConfigManger
-                                          //                   .bodyHeight *
-                                          //               .12,
-                                          //           decoration: BoxDecoration(
-                                          //               borderRadius:
-                                          //                   BorderRadius
-                                          //                       .circular(10),
-                                          //               image: DecorationImage(
-                                          //                   fit: BoxFit.cover,
-                                          //                   image: cubit
-                                          //                               .ReportList[
-                                          //                                   index]
-                                          //                               .image !=
-                                          //                           ConstantsManger
-                                          //                               .DEFULT
-                                          //                       ? NetworkImage(
-                                          //                           "${cubit.ReportList[index].image}")
-                                          //                       : AssetImage(
-                                          //                               "assets/images/att.jpg")
-                                          //                           as ImageProvider)),
-                                          //         ),
-                                          //         SizedBox(
-                                          //           width:
-                                          //               getProportionateScreenHeight(
-                                          //                   20),
-                                          //         ),
-                                          //         Column(
-                                          //           crossAxisAlignment:
-                                          //               CrossAxisAlignment
-                                          //                   .start,
-                                          //           children: [
-                                          //             AppText(
-                                          //                 text:
-                                          //                     "${cubit.ReportList[index].userName}",
-                                          //                 color: cubit
-                                          //                             .ReportList[
-                                          //                                 index]
-                                          //                             .isMocking ==
-                                          //                         false
-                                          //                     ? Colors.black
-                                          //                     : Colors.red,
-                                          //                 fontWeight:
-                                          //                     FontWeight.bold),
-                                          //             SizedBox(
-                                          //                 height:
-                                          //                     getProportionateScreenHeight(
-                                          //                         5)),
-                                          //             AppText(
-                                          //               text:
-                                          //                   "${cubit.ReportList[index].description}",
-                                          //               color: cubit
-                                          //                           .ReportList[
-                                          //                               index]
-                                          //                           .isMocking ==
-                                          //                       false
-                                          //                   ? Colors.black
-                                          //                   : Colors.red,
-                                          //             ),
-                                          //             SizedBox(
-                                          //                 height:
-                                          //                     getProportionateScreenHeight(
-                                          //                         5)),
-                                          //             AppText(
-                                          //                 text:
-                                          //                     "${cubit.ReportList[index].date}",
-                                          //                 fontWeight:
-                                          //                     FontWeight.bold,
-                                          //                 color: cubit
-                                          //                             .ReportList[
-                                          //                                 index]
-                                          //                             .isMocking ==
-                                          //                         false
-                                          //                     ? Colors.black
-                                          //                     : Colors.red),
-                                          //             SizedBox(
-                                          //                 height:
-                                          //                     getProportionateScreenHeight(
-                                          //                         5)),
-                                          //             AppText(
-                                          //                 text:
-                                          //                     "${cubit.ReportList[index].time}",
-                                          //                 color: cubit
-                                          //                             .ReportList[
-                                          //                                 index]
-                                          //                             .isMocking ==
-                                          //                         false
-                                          //                     ? Colors.black
-                                          //                     : Colors.red),
-                                          //             SizedBox(
-                                          //                 height:
-                                          //                     getProportionateScreenHeight(
-                                          //                         5)),
-                                          //             InkWell(
-                                          //               onTap: () {
-                                          //                 LatLng _postion = LatLng(
-                                          //                     cubit
-                                          //                         .ReportList[
-                                          //                             index]
-                                          //                         .lat!,
-                                          //                     cubit
-                                          //                         .ReportList[
-                                          //                             index]
-                                          //                         .lon!);
-                                          //                 navigateTo(
-                                          //                     context,
-                                          //                     MapScreen(
-                                          //                         "${cubit.ReportList[index].userName}",
-                                          //                         _postion,
-                                          //                         "${cubit.ReportList[index].time}"));
-                                          //               },
-                                          //               child: AppText(
-                                          //                   color: Colors.blue,
-                                          //                   textDecoration:
-                                          //                       TextDecoration
-                                          //                           .underline,
-                                          //                   text:
-                                          //                       "View on Map"),
-                                          //             ),
-                                          //           ],
-                                          //         ),
-                                          //       ],
-                                          //     ),
-                                          //   ),
-                                          // ),
+
                                           Container(
                                             height: MediaQuery.of(context).size.height*0.15,
                                             width: MediaQuery.of(context).size.width*0.7,
@@ -381,6 +287,7 @@ class _UserReportScreenState extends State<UserReportScreen> {
                                       itemCount: cubit.ReportList.length),
                                 ),
                               ),
+                              (counts!=null)?
                               InkWell(
                                 onTap: () {
                                   LatLng initalPostion = LatLng(
@@ -402,17 +309,45 @@ class _UserReportScreenState extends State<UserReportScreen> {
                                   child:Center(
                                     child: Column(
                                       children: [
-                                        AppText(
-                                            textSize: 28,
+                                        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                          children: [  AppText(
+                                            textSize: 21,
                                             color: Colors.white,
-                                            text: "مجموع الزيارات : ${cubit.totalVistes}"),
-                                        SizedBox(
-                                          height: getProportionateScreenHeight(10),
-                                        ),
-                                        AppText(
-                                            textSize: 28,
-                                            color: Colors.white,
-                                            text: " مجموع نقاط التتبع : ${cubit.ReportListShown.length}"),
+                                            text: "مجموع الزيارات : ${counts?.totalVis}"),
+                                          SizedBox(
+                                            height: getProportionateScreenHeight(10),
+                                          ),
+                                          AppText(
+                                              textSize: 18,
+                                              color: Colors.white,
+                                              text: " مجموع نقاط التتبع : ${cubit.ReportListShown.length}"),],),
+
+                                        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                          children: [  AppText(
+                                              textSize: 21,
+                                              color: Colors.white,
+                                              text: "داخل خط السير : ${counts?.plannedVisits}"),
+                                            SizedBox(
+                                              height: getProportionateScreenHeight(10),
+                                            ),
+                                            AppText(
+                                                textSize: 18,
+                                                color: Colors.white,
+                                                text: " خارج خط السير : ${counts?.unplannedVisits}"),],),
+
+                                        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                          children: [  AppText(
+                                              textSize: 21,
+                                              color: Colors.white,
+                                              text: "الزيارات المكتملة : ${counts?.completedVisits}"),
+                                            SizedBox(
+                                              height: getProportionateScreenHeight(10),
+                                            ),
+                                            AppText(
+                                                textSize: 18,
+                                                color: Colors.white,
+                                                text: " الزيارات الغير المكتملة : ${counts?.uncompletedVisits}"),],)
+
                                       ],
                                     ),
                                   ) /*Center(
@@ -422,7 +357,7 @@ class _UserReportScreenState extends State<UserReportScreen> {
                                         text: "Total Visits : ${cubit.totalVistes}"),
                                   )*/,
                                 ),
-                              ),
+                              ):Center(child: CircularProgressIndicator()),
                             ],
                           ),
                         ),
@@ -441,6 +376,7 @@ class _UserReportScreenState extends State<UserReportScreen> {
         child: AppText(text: 'No Data', fontWeight: FontWeight.bold, textSize: 25),
       );
     } else {
+
       return Padding(
         padding: EdgeInsets.only(top: SizeConfigManger.bodyHeight * .2),
         child: InkWell(

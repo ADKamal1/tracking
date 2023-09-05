@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:hook_atos/shared/helper/mangers/constants.dart';
 
-class CustomerModel {
+class CompletedVisit {
   String? id;
   String? userId;
   String? name;
@@ -12,20 +12,18 @@ class CustomerModel {
   String? dist;
   String? specialty;
   String? searchName;
-  double? lat;
-  double? lon;
   String? address;
-  String? image;
-  String? date;
+  String?previousDate;
   String? time;
-  bool? isMocking;
-  bool?states;
+  String? completedDate;
+  bool?planed;
   String?note;
-String ?type;
 
 
-  CustomerModel({
-   required  this.id ,
+
+
+  CompletedVisit({
+    id,
     required this.userId,
     required this.name,
     required this.searchName,
@@ -35,19 +33,17 @@ String ?type;
     required this.dist,
     required this.specialty,
 
-    required this.lat,
+    required this.previousDate,
     required this.address,
-    required this.lon,
-     this.image,
-    required this.date,
+    required this.completedDate,
+
     required this.time,
-    required this.isMocking,
-     this.states,
-     this.note,
-   required this.type,
+
+    required this.planed,
+    required this.note,
   });
 
-  CustomerModel.fromJson(Map<String, dynamic> json) {
+  CompletedVisit.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     userId = json['userId'];
     name = json['name'];
@@ -56,17 +52,13 @@ String ?type;
     specialty=json['specialty'];
     classy=json['classy'];
     dist=json['dist'];
-    lat = json['lat'];
-    lon = json['lon'];
-    image = json['image'];
-    date = json['date'];
+    previousDate = json['previousDate'];
+    completedDate = json['completedDate'];
     time = json['time'];
-    isMocking = json['isMocking'];
     searchName = json['searchName'];
     address = json['address'];
-    states=json['states'];
+    planed=json['planed'];
     note=json['note'];
-    type=json['type'];
   }
 
   Map<String, dynamic> toMap() {
@@ -79,17 +71,13 @@ String ?type;
       "classy":classy,
       "line":line,
       "specialty":specialty,
-      "lat": lat,
-      "lon": lon,
-      "image": image,
       "time": time,
-      "date": date,
+      "previousDate": previousDate,
+      "completedDate":completedDate,
       "searchName": searchName,
-      "isMocking": isMocking,
       "address": address,
-      "states":states,
+      "planed":planed,
       "note":note,
-"type":type,
     };
   }
 }

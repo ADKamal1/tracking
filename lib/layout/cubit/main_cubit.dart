@@ -11,6 +11,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:hook_atos/model/LineModel.dart';
+import 'package:hook_atos/model/Visit.dart';
 import 'package:hook_atos/ui/screens/line_visits/lineVisits.dart';
 
 import 'package:http/http.dart' as http;
@@ -59,7 +60,9 @@ class MainCubit extends Cubit<MainState> {
       getUserData();
     }
     else if(index==0){
+getUserData();
       getLines();
+
     }
 
     emit(ChangeBottomNavigationIndex());
@@ -103,7 +106,7 @@ class MainCubit extends Cubit<MainState> {
   List<Widget> screens = [
     const SearchScreen(),
     LocationScreen(),
-    MyStepper(),
+    MyLine(),
     UserReportScreen(FirebaseAuth.instance.currentUser!.uid),
     const SettingScreen(),
   ];
@@ -115,6 +118,7 @@ class MainCubit extends Cubit<MainState> {
   LocationData? locationData;
   StreamSubscription<LocationData>? _locationDatatSub;
   bool? isMocking;
+
 
   Future<void> listenLocation() async {
     await setUpPermissions(start: false);
@@ -317,6 +321,7 @@ class MainCubit extends Cubit<MainState> {
         required double lat,
         required double lon,
         required bool states,
+        required String type,
 
       }) async {
 
@@ -324,8 +329,10 @@ class MainCubit extends Cubit<MainState> {
 
     try {
       bool result = await InternetConnectionChecker().hasConnection;
+       var conn =  await InternetConnectionChecker().checkTimeout;
+       print("000000000000bbbbbbbb"+conn.inSeconds.toString());
 
-      if (result) {
+      if (result&&conn.inSeconds<30) {
         FirebaseFirestore.instance
             .collection("admin")
             .doc("admin")
@@ -336,11 +343,14 @@ class MainCubit extends Cubit<MainState> {
             emit(UpdatePageState());
           } else {
             emit(AddNewCustomerLoading());
+
+            AddressInfo addressInfo=await setUpAddress(locationData: locationData!);
             CustomerModel model = CustomerModel(
+                id:FirebaseFirestore.instance.collection("customersV2").doc().id,
                 userId: FirebaseAuth.instance.currentUser!.uid,
                 date: formatDate(),
-                address: await setUpAddress(locationData: locationData!),
-                time: formatTime(),
+                address: addressInfo.address,
+                time: formatTime(time: DateTime.now()),
                 searchName: name.toLowerCase(),
                 name: name,
                 specialty: speciality,
@@ -351,8 +361,12 @@ class MainCubit extends Cubit<MainState> {
                 phone: phone,
                 lat: lat,
                 lon: lon,
-                states: states,
-              note: "",
+           note: "",
+           states: false,
+type: type,
+
+           //   planed: false,
+
 
               image: ConstantsManger.DEFULT
 
@@ -465,25 +479,63 @@ class MainCubit extends Cubit<MainState> {
   List<String>linesClssifications=[];
 
   Future<void> getLines() async {
-linesNames.clear();
-    final CollectionReference linesCollection = FirebaseFirestore.instance.collection('lines');
+
+    getUserData();
+if(userModel?.group == 'Atos') {
+
+  final CollectionReference linesCollection = FirebaseFirestore.instance
+      .collection('lines');
+  print(userModel?.group);
+  final QuerySnapshot querySnapshot = await linesCollection.get();
+  final List<QueryDocumentSnapshot> documents = querySnapshot.docs;
+  lines =
+      documents.map((doc) => Line.fromJson(doc.data() as Map<String, dynamic>))
+          .toList();
+  linesNames.clear();
+  for (var linename in lines) {
+    linesNames.add(linename.name);
+  }
+}
+else
+  {
+    final CollectionReference linesCollection = FirebaseFirestore.instance
+        .collection('${userModel?.group}');
+    print(userModel?.group);
     final QuerySnapshot querySnapshot = await linesCollection.get();
     final List<QueryDocumentSnapshot> documents = querySnapshot.docs;
- lines = documents.map((doc) => Line.fromJson(doc.data() as Map<String, dynamic>)).toList();
-   for( var linename in lines)
-     {
-       linesNames.add(linename.name);
+    lines =
+        documents.map((doc) => Line.fromJson(doc.data() as Map<String, dynamic>))
+            .toList();
 
-     }
+    linesNames.clear();
+    for (var linename in lines) {
+      linesNames.add(linename.name);
+    }
+  }
 
   }
 
+  List<String> typesList=[];
+  void getAllType()  {
+
+    FirebaseFirestore.instance
+        .collection("dropdown data").doc("Type").get().
+
+    then((value) {
+      if (value.data()!['Type'] != null) {
+        typesList.clear();
+        for (String type in value.data()!['Type']) {
+          typesList.add(type);
+        }}
+    });
+
+  }
 
   List<CustomerModel> customerListSeach = [];
 
   void serachQuery({required String query}) {
     FirebaseFirestore.instance
-        .collection("customers")
+        .collection("customersV2")
         .where('userId',isEqualTo: FirebaseAuth.instance.currentUser!.uid)
 
         .where('searchName',
@@ -503,25 +555,26 @@ linesNames.clear();
   }
 
 
-  List<CustomerModel> visitsOfTheDayList = [];
+  List<Visit> visitsOfTheDayList = [];
 
-  void visitsOfTheDay() {
-    print("AHHHHHHHHHHHHHHHHHHHHHHHHHHHHA");
+  void visitsOfTheDay(var selectedDate) {
+    visitsOfTheDayList.clear();
     FirebaseFirestore.instance
-        .collection("user visits").orderBy("time")
+        .collection("visitsV2").orderBy("time")
         .where('userId',isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .where('dateOfNextVisit',
+        isEqualTo:DateFormat('dd/MM/yyyy').format(selectedDate).toString())
+        .where('planed', isEqualTo: true) // Add this condition
 
-        .where('date',
-        isEqualTo:DateFormat('dd/MM/yyyy').format(DateTime.now()).toString())
         .get()
         .then((value) {
-     visitsOfTheDayList.clear();
+
+      print("AHHHHHHHHHHHHHHHHHHHHHHHHHHHHA");
+
       value.docs.forEach((element) {
         visitsOfTheDayList.add(
-            CustomerModel.fromJson(element.data())
+            Visit.fromJson(element.data())
         );
-
-
       });
 
       emit(SeachListState());
@@ -560,6 +613,22 @@ linesNames.clear();
     });
   }
 
+  List<CustomerModel> customer = [];
+  void getCustomerByName(String name) {
+    emit(GetCustomersdLoading());
+    FirebaseFirestore.instance
+        .collection(ConstantsManger.CUSTOMERSList)
+        .where('name', isEqualTo: name)
+        .get()
+        .then((value) {
+
+      customer.clear();
+      value.docs.forEach((element) {
+        customer.add(CustomerModel.fromJson(element.data()));
+      });
+      emit(GetCustomersdSuccess());
+    });
+  }
 
   List<LocationModel> _locationListCheck = [];
 
@@ -626,7 +695,7 @@ linesNames.clear();
     _sendNotifiationToAdmin(title: "إغلاق التتبع ", body: "قد تم إغلاق التتبع");
     FirebaseFirestore.instance.runTransaction((transaction) async {
       DocumentReference documentReference = FirebaseFirestore.instance
-          .collection("Online")
+          .collection("OnlineV2")
           .doc("${FirebaseAuth.instance.currentUser!.uid}");
       await transaction.delete(documentReference);
     });
@@ -704,11 +773,11 @@ await setUpPermissions();
     getWorkToday();
     return "";
   }
-
-  Future onRefreshGetVisitsoftheday() async {
-    visitsOfTheDay();
-    return "";
-  }
+  //
+  // Future onRefreshGetVisitsoftheday() async {
+  //   visitsOfTheDay();
+  //   return "";
+  // }
   ///////////////////////////////////////////////////////////////
 
   final ImagePicker _picker = ImagePicker();

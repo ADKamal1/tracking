@@ -48,12 +48,12 @@ class VisitsDesign extends StatelessWidget {
                       ),
 
                          AppText(
-                          text: '${customerModel.date}',
+                          text: '${customerModel.time}',
                           textSize: 25.0,
                           maxLines: 3,
-                          color: customerModel.isMocking == false
-                              ? Colors.black
-                              : Colors.red,
+                          color: customerModel.isMocking == true
+                              ? Colors.red
+                              : Colors.black,
                           fontWeight: FontWeight.bold,
 
                         ),
@@ -62,11 +62,11 @@ class VisitsDesign extends StatelessWidget {
                       SizedBox(
                         height: getProportionateScreenHeight(30),
                       ),
-                      AppText(
-                        text: "${customerModel.time}",
-                        color: customerModel.isMocking == false
-                            ? Colors.black
-                            : Colors.red,
+                      AppText(maxLines: 1,
+                        text: "${customerModel.note}",
+                        color: customerModel.isMocking == true
+                            ? Colors.red
+                            : Colors.black,
                       ),
                     ],
                   ),

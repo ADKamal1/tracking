@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:hook_atos/shared/helper/mangers/constants.dart';
 
-class CustomerModel {
-  String? id;
+class Visit {
+  String? visitId;
   String? userId;
   String? name;
   String? phone;
@@ -12,20 +12,23 @@ class CustomerModel {
   String? dist;
   String? specialty;
   String? searchName;
-  double? lat;
-  double? lon;
   String? address;
-  String? image;
-  String? date;
+  String?dateOfNextVisit;
   String? time;
-  bool? isMocking;
-  bool?states;
+  String? dateOfVisit;
+  bool?planed;
   String?note;
-String ?type;
+  bool?status;
+  String?image;
+  String?governorate;
+  bool?isMocking;
+  String?type;
 
 
-  CustomerModel({
-   required  this.id ,
+
+
+  Visit({
+    visitId,
     required this.userId,
     required this.name,
     required this.searchName,
@@ -34,21 +37,22 @@ String ?type;
     required this.classy,
     required this.dist,
     required this.specialty,
-
-    required this.lat,
+    required this.dateOfNextVisit,
     required this.address,
-    required this.lon,
-     this.image,
-    required this.date,
+    required this.dateOfVisit,
     required this.time,
+    required this.planed,
+    required this.status,
+    required this.note,
+    required this.image,
+    required this.governorate,
     required this.isMocking,
-     this.states,
-     this.note,
-   required this.type,
+    required this.type
+
   });
 
-  CustomerModel.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
+  Visit.fromJson(Map<String, dynamic> json) {
+    visitId = json['visitId'];
     userId = json['userId'];
     name = json['name'];
     phone = json['phone'];
@@ -56,22 +60,23 @@ String ?type;
     specialty=json['specialty'];
     classy=json['classy'];
     dist=json['dist'];
-    lat = json['lat'];
-    lon = json['lon'];
-    image = json['image'];
-    date = json['date'];
+    dateOfNextVisit = json['dateOfNextVisit'];
+    dateOfVisit = json['dateOfVisit'];
     time = json['time'];
-    isMocking = json['isMocking'];
     searchName = json['searchName'];
     address = json['address'];
-    states=json['states'];
+    planed=json['planed'];
     note=json['note'];
+    status=json['status'];
+    image=json['image'];
+    governorate=json['governorate'];
+    isMocking=json['isMocking'];
     type=json['type'];
   }
 
   Map<String, dynamic> toMap() {
     return {
-      "id": id,
+      "visitId": visitId,
       "userId": userId,
       "name": name,
       "phone": phone,
@@ -79,17 +84,19 @@ String ?type;
       "classy":classy,
       "line":line,
       "specialty":specialty,
-      "lat": lat,
-      "lon": lon,
-      "image": image,
       "time": time,
-      "date": date,
+      "dateOfNextVisit": dateOfNextVisit,
+      "dateOfVisit":dateOfVisit,
       "searchName": searchName,
-      "isMocking": isMocking,
       "address": address,
-      "states":states,
+      "planed":planed,
       "note":note,
-"type":type,
+      "status":status,
+      "image":image,
+      "governorate":governorate,
+      "isMocking":isMocking,
+      "type":type,
+
     };
   }
 }

@@ -28,20 +28,32 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
   var note = TextEditingController();
   var formKey = GlobalKey<FormState>();
 
-  @override
-  void initState() {
 
-    // TODO: implement initState
-  }
    String? selectedName;
    Line? fullLine;
    String?  selectedClassy;
 
   String?  selectedSpicality;
+  String? selectedType;
+  @override
+  void initState() {
 
+    MainCubit cubit = MainCubit.get(context);
+
+    cubit.linesNames.clear();
+    cubit.getUserData();
+
+    cubit.getLines();
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+    MainCubit cubit = MainCubit.get(context);
+
+    cubit = MainCubit.get(context)..getLines();
+
     return BlocConsumer<MainCubit, MainState>(
       listener: (context, state) {
         if (state is AddNewCustomerSuccess) {
@@ -69,313 +81,306 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
         }
       },
       builder: (context, state) {
-        MainCubit cubit = MainCubit.get(context);
-        List<String> linesName = cubit.linesNames;
+
+
         //  List<DropdownMenuItem<String>> linesNames = linesName
         //      .map((name) => DropdownMenuItem(
         //            value: name,
         //            child: Text(name),
         //          ))
         //      .toList();
-        //  print(linesName);
-        return Scaffold(
 
-          body: SafeArea(
-            child: Form(
-              key: formKey,
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.all(getProportionateScreenHeight(10)),
-                  child: Center(
-                    child: Column(
-
-                      crossAxisAlignment: CrossAxisAlignment.start,
-
-                      children: [
-                        SizedBox(
-                          height: SizeConfigManger.bodyHeight * .05,
-                        ),
-                        FadeAnimation(
-                          0.5, InkWell(
-                            onTap: () async {
-                              chooseCustomerImage();
-                              await cubit.setUpPermissions(start: false);
-                            },
-                            child: SizedBox(
-                                height: SizeConfigManger.bodyHeight * .3,
-                                width: SizeConfigManger.bodyHeight * .3,
-                                child: customerImage == null
-                                    ? Icon(
-                                  IconBroken.Image_2,
-                                  size: SizeConfigManger.bodyHeight * .15,
-                                )
-                                    : Image.file(
-                                  customerImage!,
-                                  height: double.infinity,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                )),
+       if (cubit.linesNames.isNotEmpty) {
+          return Scaffold(
+            body: SafeArea(
+              child: Form(
+                key: formKey,
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.all(getProportionateScreenHeight(10)),
+                    child: Center(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: SizeConfigManger.bodyHeight * .05,
                           ),
-                        ),
-                        SizedBox(
-                          height: SizeConfigManger.bodyHeight * .015,
-                        ),
-                        FadeAnimation(
-                         1, CustomTextFormField(
-                            controller: name,
-                            type: TextInputType.text,
-                            lableText: "username",
-                            prefixIcon: 'assets/icons/User.svg',
-                            validate: (String? value) {
-                              if (value!.isEmpty) {
-                                return "Username is Required";
-                              }
-                            },
-                          ),
-                        ),
-                        SizedBox(
-                          height: SizeConfigManger.bodyHeight * .015,
-                        ),
-                        FadeAnimation(
-                          1.5, CustomTextFormField(
-                            controller: phone,
-                            type: TextInputType.phone,
-                            lableText: "Phone Number",
-                            prefixIcon: 'assets/icons/Phone.svg',
-                            validate: (String? value) {
-                              if (value!.isEmpty) {
-                                return "Phone is Required";
-                              }
-                            },
-                          ),
-                        ),
-                        // CustomTextFormField(
-                        //   controller: note,
-                        //   type: TextInputType.text,
-                        //   lableText: "notes",
-                        //   validate: (String? value) {
-                        //     if (value!.isEmpty) {
-                        //       return "Note is Required";
-                        //     }
-                        //   },
-                        // ),
-                        // SizedBox(
-                        //   height: SizeConfigManger.bodyHeight * .02,
-                        // ),
-                        //
-                        //  DropdownButton<String>(
-                        //   value: _selectedName,
-                        //   items: linesNames,
-                        //   onChanged: ( value) {
-                        //     setState(() {
-                        //       _selectedName = value;
-                        //     });
-                        //   },
-                        //
-                        //   hint:Text(_selectedName??'Line Name'),
-                        // ),
-
-
-                        FadeAnimation(
-                         1.7, Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 30),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                DropdownButton<String>(
-                                  items: linesName.toSet().map((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  }).toList(),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      selectedName = value;
-                                      fullLine = cubit.lines.firstWhere((
-                                          element) =>
-                                      element.name == selectedName);
-                                      selectedClassy = null;
-                                      selectedSpicality = null;
-                                    });
-                                  },
-                                  value: selectedName,
-
-                                  hint: Text("selected Line"),
-                                ),
-
-                                SizedBox(
-                                  height: SizeConfigManger.bodyHeight * .02,
-                                ),
-                                FadeAnimation(
-                                  1.8, Builder(
-                                      builder: (context) {
-                                        return DropdownButton<String>(
-                                          items: fullLine?.classification.toSet()
-                                              .map((String value) {
-                                            return DropdownMenuItem<String>(
-                                              value: value,
-                                              child: Text(value),
-                                            );
-                                          }).toList(),
-                                          onChanged: (value) {
-                                            setState(() {
-                                              selectedClassy = value;
-                                            });
-                                          },
-                                          value: selectedClassy,
-
-                                          hint: Text("class      "),
-                                        );
-                                      }
-                                  ),
-                                ),
-                                // SizedBox(
-                                //   height: SizeConfigManger.bodyHeight * .02,
-                                // ),
-                                // Builder(
-                                //     builder: (context) {
-                                //       return DropdownButton<String>(
-                                //         items: fullLine?.distribution.toSet()
-                                //             .map((String value) {
-                                //           return DropdownMenuItem<String>(
-                                //             value: value,
-                                //             child: Text(value),
-                                //           );
-                                //         }).toList(),
-                                //         onChanged: (value) {
-                                //           setState(() {
-                                //             selectedDis = value;
-                                //           });
-                                //         },
-                                //         value: selectedDis,
-                                //
-                                //         hint: Text("Distruibutors"),
-                                //       );
-                                //     }
-                                // ),
-                                SizedBox(
-                                  height: SizeConfigManger.bodyHeight * .02,
-                                ),
-                                FadeAnimation(
-                                 1.9, Builder(
-                                      builder: (context) {
-                                        return DropdownButton<String>(
-                                          items: fullLine?.speciality.toSet().map((
-                                              String value) {
-                                            return DropdownMenuItem<String>(
-                                              value: value,
-                                              child: Text(value),
-                                            );
-                                          }).toList(),
-                                          onChanged: (value) {
-                                            setState(() {
-                                              selectedSpicality = value;
-                                            });
-                                          },
-
-                                          value: selectedSpicality,
-
-                                          hint: Text("Specialities"),
-                                        );
-                                      }
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: SizeConfigManger.bodyHeight * .02,
-                                ),
-                              ],
+                          FadeAnimation(
+                            0.5,
+                            InkWell(
+                              onTap: () async {
+                                chooseCustomerImage();
+                                await cubit.setUpPermissions(start: false);
+                              },
+                              child: SizedBox(
+                                  height: SizeConfigManger.bodyHeight * .3,
+                                  width: SizeConfigManger.bodyHeight * .3,
+                                  child: customerImage == null
+                                      ? Icon(
+                                          IconBroken.Image_2,
+                                          size:
+                                              SizeConfigManger.bodyHeight * .15,
+                                        )
+                                      : Image.file(
+                                          customerImage!,
+                                          height: double.infinity,
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
+                                        )),
                             ),
                           ),
-                        ),
-                        state is LoadingState
-                            ? const Center(
-                          child: CircularProgressIndicator(),
-                        )
-                            : FadeAnimation(
-                              2.1, Padding(
-                          padding: EdgeInsets.symmetric(
-                                horizontal:
-                                getProportionateScreenHeight(20)),
-                          child: CustomButton(
-
-                                press: () async {
-                                  UserVisitsCubit userVisitsCubit = UserVisitsCubit
-                                      .get(context);
-                                  if (customerImage == null) {
-                                    Toast.show("Image is Required", context,
-                                        backgroundColor: Colors.red,
-                                        duration: 3);
-                                  }
-                                  else if (selectedClassy == null ||
-                                      selectedName == null ||
-                                      selectedSpicality == null) {
-                                    Toast.show(
-                                        "complete your selections", context,
-                                        backgroundColor: Colors.red,
-                                        duration: 3);
-                                  }
-                                  else {
-                                    if (formKey.currentState!.validate()) {
-                                      cubit.addCustomer(
-                                          image: customerImage!,
-                                          name: name.text,
-                                          phone: phone.text,
-                                          classy: selectedClassy ?? "",
-                                          dist:  "",
-                                          speciality: selectedSpicality ?? "",
-                                          line: selectedName ?? "",
-                                          lat: cubit
-                                              .locationData!.latitude ??
-                                              0.0,
-                                          lon: cubit.locationData!
-                                              .longitude ??
-                                              0.0,
-
-                                        states: false,
-
+                          SizedBox(
+                            height: SizeConfigManger.bodyHeight * .015,
+                          ),
+                          FadeAnimation(
+                            1,
+                            CustomTextFormField(
+                              controller: name,
+                              type: TextInputType.text,
+                              lableText: "username",
+                              prefixIcon: 'assets/icons/User.svg',
+                              validate: (String? value) {
+                                if (value!.isEmpty) {
+                                  return "Username is Required";
+                                }
+                              },
+                            ),
+                          ),
+                          SizedBox(
+                            height: SizeConfigManger.bodyHeight * .015,
+                          ),
+                          FadeAnimation(
+                            1.5,
+                            CustomTextFormField(
+                              controller: phone,
+                              type: TextInputType.phone,
+                              lableText: "Phone Number",
+                              prefixIcon: 'assets/icons/Phone.svg',
+                              validate: (String? value) {
+                                if (value!.isEmpty) {
+                                  return "Phone is Required";
+                                }
+                              },
+                            ),
+                          ),
+                          FadeAnimation(
+                            1.7,
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 30),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  DropdownButton<String>(
+                                    items:
+                                     cubit.linesNames.toSet().map((String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value),
                                       );
-                                      // userVisitsCubit.addVisitUser(
-                                      //
-                                      //
-                                      //   userName: name.text,
-                                      //   name: name.text,
-                                      //   phone: phone.text,
-                                      //
-                                      //   image: customerImage!.uri.toString(),
-                                      //   orginalLat: cubit
-                                      //       .locationData!.latitude ?? 0.0,
-                                      //   orginalLong:
-                                      //   cubit.locationData!
-                                      //       .longitude ??
-                                      //       0.0,
-                                      //   line: selectedName ?? "",
-                                      //   classy: selectedClassy ?? "",
-                                      //   specilty: selectedSpicality ?? "",
-                                      //   dist: selectedDis ?? "",
-                                      //   timeOfDay: DateFormat('dd/MM/yyyy')
-                                      //       .format(DateTime.now())
-                                      //       .toString(),
-                                      //   dateTime: DateTime.now().toString(),
-                                      //   states: false,
-                                      //
-                                      //
-                                      // );
-                                    }
-                                  }
-                                },
-                                text: "Add Customer"),
-                        ),
+                                    }).toList(),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        selectedName = value;
+                                        fullLine = cubit.lines.firstWhere(
+                                            (element) =>
+                                                element.name == selectedName);
+                                        selectedClassy = null;
+                                        selectedSpicality = null;
+                                        selectedType = null;
+
+                                      });
+                                    },
+                                    value: selectedName,
+                                    hint: Text("selected Line"),
+                                  ),
+
+                                  SizedBox(
+                                    height: SizeConfigManger.bodyHeight * .02,
+                                  ),
+                                  FadeAnimation(
+                                    1.8,
+                                    Builder(builder: (context) {
+                                      return DropdownButton<String>(
+                                        items: fullLine?.classification
+                                            .toSet()
+                                            .map((String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(value),
+                                          );
+                                        }).toList(),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            selectedClassy = value;
+                                          });
+                                        },
+                                        value: selectedClassy,
+                                        hint: Text("class      "),
+                                      );
+                                    }),
+                                  ),
+
+                                  SizedBox(
+                                    height: SizeConfigManger.bodyHeight * .02,
+                                  ),
+                                  FadeAnimation(
+                                    1.9,
+                                    Builder(builder: (context) {
+                                      return DropdownButton<String>(
+                                        items: fullLine?.speciality
+                                            .toSet()
+                                            .map((String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(value),
+                                          );
+                                        }).toList(),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            selectedSpicality = value;
+                                          });
+                                        },
+                                        value: selectedSpicality,
+                                        hint: Text("Specialities"),
+                                      );
+                                    }),
+                                  ),
+
+                                  SizedBox(
+                                      height: getProportionateScreenHeight(50)),
+
+                                  FadeAnimation(
+                                    2.0,
+                                    DropdownButton<String>(
+                                      items:
+                                      fullLine?.type
+                                          .toSet()
+                                          .map((String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value),
+                                        );
+                                      }).toList(),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          selectedType = value;
+                                        });
+                                      },
+                                      value: selectedType,
+                                      hint: Text("Type      "),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: SizeConfigManger.bodyHeight * .02,
+                                  ),
+                                ],
+                              ),
                             ),
-                      ],
+                          ),
+                          state is LoadingState
+                              ? const Center(
+                                  child: CircularProgressIndicator(),
+                                )
+                              : FadeAnimation(
+                                  2.1,
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal:
+                                            getProportionateScreenHeight(20)),
+                                    child: CustomButton(
+                                        press: () async {
+                                          UserVisitsCubit userVisitsCubit =
+                                              UserVisitsCubit.get(context);
+                                          if (customerImage == null) {
+                                            Toast.show(
+                                                "Image is Required", context,
+                                                backgroundColor: Colors.red,
+                                                duration: 3);
+                                          } else if (selectedClassy == null ||
+                                              selectedName == null ||
+                                              selectedSpicality == null ||
+                                              selectedType == null) {
+                                            Toast.show(
+                                                "complete your selections",
+                                                context,
+                                                backgroundColor: Colors.red,
+                                                duration: 3);
+                                          } else {
+                                            if (formKey.currentState!
+                                                .validate()) {
+                                              cubit.addCustomer(
+                                                image: customerImage!,
+                                                name: name.text,
+                                                phone: phone.text,
+                                                classy: selectedClassy ?? "",
+                                                dist: "",
+                                                speciality:
+                                                    selectedSpicality ?? "",
+                                                line: selectedName ?? "",
+                                                lat: cubit.locationData!
+                                                        .latitude ??
+                                                    0.0,
+                                                lon: cubit.locationData!
+                                                        .longitude ??
+                                                    0.0,
+                                                states: false,
+                                                type: selectedType ?? "",
+                                              );
+                                              // userVisitsCubit.addVisitUser(
+                                              //
+                                              //
+                                              //   userName: name.text,
+                                              //   name: name.text,
+                                              //   phone: phone.text,
+                                              //
+                                              //   image: customerImage!.uri.toString(),
+                                              //   orginalLat: cubit
+                                              //       .locationData!.latitude ?? 0.0,
+                                              //   orginalLong:
+                                              //   cubit.locationData!
+                                              //       .longitude ??
+                                              //       0.0,
+                                              //   line: selectedName ?? "",
+                                              //   classy: selectedClassy ?? "",
+                                              //   specilty: selectedSpicality ?? "",
+                                              //   dist: selectedDis ?? "",
+                                              //   timeOfDay: DateFormat('dd/MM/yyyy')
+                                              //       .format(DateTime.now())
+                                              //       .toString(),
+                                              //   dateTime: DateTime.now().toString(),
+                                              //   states: false,
+                                              //
+                                              //
+                                              // );
+                                            }
+                                          }
+                                        },
+                                        text: "Add Customer"),
+                                  ),
+                                ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        );
+          );
+        }
+       else{
+         cubit..getLines();
+         return Scaffold(
+           body: Center(
+             child: Container(
+               child: CircularProgressIndicator(
+                 color: Colors.red,
+                 strokeWidth: 2,
+               ),
+             ),
+           ),
+         );
+       }
       },
     );
   }

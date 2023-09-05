@@ -75,18 +75,18 @@ class UserOldVisitsScreen extends StatelessWidget {
                   ),
                   body: state is GetOldVisitsLoading
                       ? const Center(
-                          child: CircularProgressIndicator(),
-                        )
+                    child: CircularProgressIndicator(),
+                  )
                       : ListView.separated(
-                          itemBuilder: (context, index) {
-                            return VisitsDesign(cubit.customerVistsList[index]);
-                          },
-                          separatorBuilder: (context, index) => SizedBox(
-                              height: getProportionateScreenHeight(10)),
-                          itemCount: cubit.customerVistsList.length),
+                      itemBuilder: (context, index) {
+                        return VisitsDesign(cubit.customerVistsList[index]);
+                      },
+                      separatorBuilder: (context, index) => SizedBox(
+                          height: getProportionateScreenHeight(10)),
+                      itemCount: cubit.customerVistsList.length),
                   floatingActionButton: FloatingActionButton(
-                                     onPressed: () => navigateTo(context, AddUserVisitScreen(customerModel,false,""),
-                  ),
+                    onPressed: () => navigateTo(context, AddUserVisitScreen(customerModel,false,"",false,''),
+                    ),
                     child: Icon(Icons.add),
                   ),
                 );
@@ -102,11 +102,11 @@ class UserOldVisitsScreen extends StatelessWidget {
                   body: Center(
                     child: Container(
                         child: AppText(
-                      text:
+                          text:
                           "من فضلك قم بتشغيل الانترنت خلال 3 دقايق والا سيتم ارسال رسالة للادمن",
-                      maxLines: 4,
-                      fontWeight: FontWeight.bold,
-                    )),
+                          maxLines: 4,
+                          fontWeight: FontWeight.bold,
+                        )),
                   ),
                 );
               },

@@ -19,12 +19,23 @@ class UserReportCubit extends Cubit<UserReportState> {
   List<LocationModel> totalList = [];
 
   late int totalVistes;
+  late int planed;
+  late int unplaned;
+  late int completed;
+  late int uncompleted;
+
 
   void getUserLocation(
       {required String userId,
       required DateTime startDate,
       DateTime? endDate}) {
     emit(GetUserReportLoading());
+    totalList.clear();
+    ReportListShown.clear();
+    ReportList.clear();
+    totalVistes = 0;
+
+
     if (endDate == null) {
       totalVistes = 0;
       FirebaseFirestore.instance
@@ -34,7 +45,6 @@ class UserReportCubit extends Cubit<UserReportState> {
           .orderBy("time")
           .get()
           .then((value) {
-        ReportList.clear();
         totalList.clear();
         ReportListShown.clear();
         totalVistes = 0;
@@ -56,13 +66,14 @@ class UserReportCubit extends Cubit<UserReportState> {
     }
     else {
       totalVistes = 0;
+
+      ReportList.clear();
+      ReportListShown.clear();
+      totalList.clear();
       List<DateTime> days = [];
       for (int i = 0; i <= endDate.difference(startDate).inDays; i++) {
         days.add(startDate.add(Duration(days: i)));
       }
-      ReportList.clear();
-      ReportListShown.clear();
-      totalList.clear();
       days.forEach((day) {
         FirebaseFirestore.instance
             .collection(ConstantsManger.LOCATION)

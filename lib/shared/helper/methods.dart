@@ -68,25 +68,20 @@ String formatTime({DateTime? time}) {
   }
 }
 
-Future<String> setUpAddress({required LocationData locationData}) async {
+Future<AddressInfo> setUpAddress({required LocationData locationData}) async {
   List<geo.Placemark> addressList = await geo.placemarkFromCoordinates(
       locationData.latitude ?? 0.0, locationData.longitude ?? 0.0);
   String address =
       '${addressList[0].country} - ${addressList[0].administrativeArea} - ${addressList[0].subAdministrativeArea} - ${addressList[0].street}';
-  return address;
-  /* BaseOptions baseOptions = BaseOptions(
-    receiveDataWhenStatusError: true,
-    headers: {
-      "Content-Type": "application/json",
-    },
-  );
-  Dio dio = Dio(baseOptions);
-  var response = await dio
-      .get("https://maps.googleapis.com/maps/api/geocode/json?latlng=${locationData
-          .latitude},${locationData.longitude}&key=${ConstantsManger
-          .API_KEY}&language=ar");
+String governorate=addressList[0].administrativeArea.toString();
+  return AddressInfo(address: address, governorate: governorate);
+}
+class AddressInfo {
+  final String address;
+  final String governorate;
 
-  AddressModel addressModel = AddressModel.fromJson(response.data);
-
-  return addressModel.results!.first.formattedAddress??"";*/
+  AddressInfo({
+    required this.address,
+    required this.governorate,
+  });
 }

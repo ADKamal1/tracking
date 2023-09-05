@@ -14,6 +14,11 @@ class SearchScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    MainCubit cubit = MainCubit.get(context);
+    cubit.getUserData();
+    cubit.getLines();
+    cubit.getAllType();
+
     return BlocConsumer<MainCubit, MainState>(
       listener: (context, state) {
  /*       if (state is AddNewCustomerSuccess) {
@@ -29,8 +34,8 @@ class SearchScreen extends StatelessWidget {
         }
  */     },
       builder: (context, state) {
-        MainCubit cubit = MainCubit.get(context);
-        cubit.getLines();
+
+
         return SafeArea(
           child: Padding(
             padding: EdgeInsets.symmetric(

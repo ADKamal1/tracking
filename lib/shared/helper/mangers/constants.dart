@@ -1,13 +1,13 @@
 class ConstantsManger {
   static const String DEFULT = 'default';
-  static const String USERS = 'users';
+  static const String USERS = 'usersV2';
   static const String LINES = 'lines';
   static const String USERS_UID = 'usersUId';
   static const String Check_Point = 'check';
   static const String ATTENDANCE = 'attendance';
-  static const String CUSTOMERSList = 'customers';
-  static const String ONLINEREPORT = 'onlineReports';
-  static const String ONLINEhook_atos = 'Online';
+  static const String CUSTOMERSList = 'customersV2';
+  static const String ONLINEREPORT = 'onlineReportsV2';
+  static const String ONLINEhook_atos = 'OnlineV2';
   static const String CUSTOMERSVistind = 'customersvisting';
   static const String ADMINOk = 'ok';
   static const String ADMINNo = 'no';

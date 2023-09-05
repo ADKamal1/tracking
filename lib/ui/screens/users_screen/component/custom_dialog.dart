@@ -118,6 +118,7 @@ class _CustomBottomSheetDesignState extends State<CustomBottomSheetDesign> {
                                 speciality: "",
                                 dist: "",
                                 classy: "",
+                                type: "",
                                 image: userImage!,
                                 name: name.text,
                                 phone: phone.text,

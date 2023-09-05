@@ -46,6 +46,7 @@ class _MainLayoutState extends State<MainLayout> {
                   appBar: AppBar(
                     centerTitle: true,
                     title: AppText(text: cubit.titles[cubit.currentIndex],textSize: 24,color: Colors.white,fontWeight: FontWeight.w600,),
+                    backgroundColor: const Color(0xffC1301A),
 
                   ),
                   body: cubit.screens[cubit.currentIndex],

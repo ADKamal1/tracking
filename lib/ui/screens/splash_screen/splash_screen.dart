@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Timer? _timer;
 
   void checkUserState() {
-    _timer = Timer(const Duration(seconds: 3), () async {
+    _timer = Timer(const Duration(seconds: 1), () async {
       bool result = await InternetConnectionChecker().hasConnection;
       if (result == true) {
         String uid = CachedHelper.getString(key: ConstantsManger.USERS_UID) ??
@@ -37,7 +37,9 @@ class _SplashScreenState extends State<SplashScreen> {
                 .get()
                 .then((admin) {
               int ver = admin.data()!['version'];
-              if (ver == ConstantsManger.appVersion) {
+              if (ver ==
+                  ConstantsManger.appVersion
+              ) {
                 if (mounted) {
                   navigateToAndFinish(context, LoginScreen());
                 }
@@ -113,9 +115,9 @@ class _SplashScreenState extends State<SplashScreen> {
             Container(
                 width: SizeConfigManger.bodyHeight * .3,
                 height: SizeConfigManger.bodyHeight * .3,
-                child: Image.asset("assets/images/HookTrack.png")),
+                child: Image.asset("assets/images/logo.png")),
             SizedBox(height: SizeConfigManger.bodyHeight * .008),
-            Text('${ConstantsManger.appVersion}.0.0',
+            Text('${ConstantsManger.appVersion}.0.1',
                 style: TextStyle(
                   fontSize: getProportionateScreenHeight(16),
                   color: ColorsManger.darkPrimary,

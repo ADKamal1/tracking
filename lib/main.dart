@@ -267,9 +267,12 @@ class MyApp extends StatelessWidget {
           BlocProvider(create: (context) => MainCubit()..setUpWorkManger()),
           BlocProvider(create: (context) => UserVisitsCubit(),
           ),
+          BlocProvider(   create: (context) => MainCubit()..getAllType()),
+
+          BlocProvider(   create: (context) => MainCubit()..getUserData()),
           BlocProvider(   create: (context) => MainCubit()..getLines()),
 
-          BlocProvider(   create: (context) => MainCubit()..visitsOfTheDay())
+          BlocProvider(   create: (context) => MainCubit()..visitsOfTheDay(DateTime.now()))
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,

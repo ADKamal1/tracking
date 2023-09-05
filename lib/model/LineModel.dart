@@ -4,6 +4,7 @@ class Line {
   final List<String> distribution;
   final List<String> speciality;
   final List<Product> products;
+  final List<String> type;
 
   Line({
     required this.name,
@@ -11,6 +12,7 @@ class Line {
     required this.distribution,
     required this.speciality,
     required this.products,
+    required this.type
   });
 
   factory Line.fromJson(Map<String, dynamic> json) {
@@ -24,6 +26,7 @@ class Line {
           .toList()
           : [],
       distribution: List<String>.from(json['distribution'] ?? []),
+      type: List<String>.from(json['type'] ?? [])
     );
   }
 
@@ -34,6 +37,7 @@ class Line {
       'distribution': distribution,
       'speciality': speciality,
       'products': products.map((product) => product.toJson()).toList(),
+      'type':type,
     };
   }
 }
